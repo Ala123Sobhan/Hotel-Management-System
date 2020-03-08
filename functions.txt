@@ -1,0 +1,137 @@
+ --1.sign in function 
+
+
+create or replace function fsign( uname in signin.username % type, pas in signin.password % type  )
+	return number
+	is
+	
+	ok number := 0;
+	name signin.username % type;
+	pass signin.password % type;
+	
+	cursor cur is
+		select username, password from signin;
+begin
+	open cur;
+		loop
+			fetch cur into name, pass;
+			exit when cur%notfound;
+			
+			if( name = uname )
+				then
+					if ( pass = pas )
+						then ok := 1;
+					end if;
+			end if;
+		
+		end loop;
+
+	close cur;
+	
+	if ( ok = 0 )
+		then return 0;
+	else
+		return 1;
+	
+	end if;
+
+end fsign;
+/
+
+--2.return the branch name
+create or replace function findbranchname( id branch.branchid % type )
+	return branch.name % type
+	is
+	name1 branch.name % type;
+
+begin
+	select name into name1 from branch  where branchid = id;
+	return name1;
+	
+	exception
+		when no_data_found then
+			return 'not found';
+	
+end findbranchname;
+/
+
+
+
+--3.checks if the customer has done any bookings or not, if exist then return the booking id
+
+create or replace function Isexst(id customer.customerid % type)
+	return booking.iid % type
+	is
+	bid booking.iid % type;
+
+begin
+      select iid into bid from booking where customerid=id;
+      --select booking.customerid into bid from booking inner join signin on signin.email=booking.email and booking.customerid=id;
+      
+        return id;
+	
+	
+	exception
+		when no_data_found then
+			return 0;
+	
+	
+	
+end Isexst;
+/
+
+--4.returns the payment status of a customer
+
+create or replace function findsts( id payment.iid % type )
+	return payment.status % type
+	is
+	sts payment.status % type;
+
+begin
+	select payment.status into sts from payment inner join booking on booking.iid=payment.iid and payment.iid= id;
+	return sts;
+	
+	exception
+		when no_data_found then
+			return '';
+	
+end findsts;
+/
+
+
+--5.return the payment amount of a customer 
+create or replace function findpayment( id payment.pid % type )
+	return payment.amount % type
+	is
+	amo payment.amount % type;
+begin
+	
+	select amount into amo from payment where pid=id;
+	return amo;
+
+	exception
+		when no_data_found then
+			return 'no member found';
+	
+end findpayment;
+/
+
+--6.return next id for branch
+create or replace function nextid
+	return number
+	is
+	tot number := 0;
+cursor cur is select branchid from branch;
+begin
+     open cur;
+     loop 
+       fetch cur into tot;
+       exit when cur%notfound;
+     end loop;
+     close cur;
+     tot := tot + 1;
+     return tot;
+end nextid;
+/
+
+

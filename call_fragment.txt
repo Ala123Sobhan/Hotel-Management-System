@@ -1,0 +1,25 @@
+SET SERVEROUTPUT ON;
+SET VERIFY OFF;
+
+
+DECLARE
+ bbbid int;
+	
+BEGIN
+            bbbid := '&branchid';
+
+             if bbbid = 1 then
+             procfrag(bbbid);
+
+             elsif bbbid=2 then
+              procfragC(bbbid);
+
+             else
+               procfragK(bbbid);
+             
+           end if;
+
+	commit;
+END;
+/
+	
